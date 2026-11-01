@@ -1,20 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "네이버 블로그 자동 입력 (Phase 1 POC)",
-  "version": "0.0.35",
-  "description": "데스크톱 앱(exe) 브리지: 로컬 WebSocket으로 예약 발행 작업 수신 → RabbitWrite 발행 (빌드 #35)",
-  "permissions": ["activeTab", "scripting", "storage", "debugger", "tabs", "alarms"],
-  "host_permissions": [
-    "https://blog.naver.com/*",
-    "https://ac.search.naver.com/*",
-    "https://generativelanguage.googleapis.com/*"
-  ],
+  "name": "네이버 블로그 브릿지",
+  "version": "1.0.0",
+  "description": "글 생성 웹 서비스의 발행 대기 글을 정해진 주기마다 가져와 네이버 블로그에 자동 발행합니다.",
+  "permissions": ["storage", "tabs", "alarms"],
+  "host_permissions": ["https://blog.naver.com/*"],
+  "optional_host_permissions": ["https://*/*", "http://localhost/*", "http://127.0.0.1/*"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "네이버 블로그 자동 입력",
+    "default_title": "네이버 블로그 브릿지",
     "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   },
   "content_scripts": [
     {

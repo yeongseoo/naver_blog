@@ -1,0 +1,75 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1f2329;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --card: #f8f9fb;
+  --accent: #03c75a;
+  --err: #dc2626;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16181d;
+    --fg: #e6e8eb;
+    --muted: #9aa1ab;
+    --line: #2c3038;
+    --card: #1e2128;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  font: 13px/1.5 -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  margin: 0;
+  padding: 14px;
+}
+h1 { font-size: 16px; margin: 0 0 12px; }
+h2 { font-size: 13px; margin: 16px 0 8px; color: var(--muted); }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+.row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.row span { color: var(--muted); flex-shrink: 0; }
+.row b { font-weight: 600; text-align: right; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+label { display: block; margin-bottom: 12px; font-weight: 600; }
+label small, small { display: block; font-weight: 400; color: var(--muted); margin-top: 4px; }
+label.check { display: flex; align-items: center; gap: 8px; }
+input[type="url"], input[type="password"], input[type="number"], select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.buttons { display: flex; gap: 8px; margin: 10px 0 6px; flex-wrap: wrap; }
+button {
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button:disabled { opacity: 0.5; cursor: default; }
+.msg { min-height: 18px; margin-top: 6px; color: var(--muted); white-space: pre-wrap; }
+.msg.ok { color: var(--accent); }
+.msg.err { color: var(--err); }
+code { font-size: 12px; }
+.log { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; }
+.log li { padding: 5px 0; border-bottom: 1px solid var(--line); word-break: break-all; }
+.log li.error { color: var(--err); }
+.log li.empty { color: var(--muted); }
+.log .time { color: var(--muted); font-size: 11px; }
+.log a { color: var(--accent); }
