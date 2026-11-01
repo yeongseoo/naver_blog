@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>키워드 확장 도구</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: "Malgun Gothic", -apple-system, sans-serif;
+        margin: 0;
+        background: #f5f6f8;
+        color: #222;
+      }
+      .wrap { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+      h1 { font-size: 20px; margin: 0 0 2px; }
+      .sub { font-size: 12px; color: #888; margin: 0 0 18px; }
+      .card {
+        background: #fff; border: 1px solid #e5e8eb; border-radius: 10px;
+        padding: 16px; margin-bottom: 16px;
+      }
+      .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      input[type="text"] {
+        flex: 1; min-width: 200px; border: 1px solid #d5d8dc; border-radius: 6px;
+        padding: 9px 12px; font-size: 14px;
+      }
+      button {
+        border: none; border-radius: 6px; padding: 9px 14px; font-size: 13px;
+        font-weight: 700; cursor: pointer; background: #e9ecef; color: #333;
+      }
+      button.primary { background: #03c75a; color: #fff; }
+      button.blue { background: #4a90e2; color: #fff; }
+      button.danger { background: #fff; color: #e03131; border: 1px solid #ffc9c9; }
+      button.mini { padding: 4px 9px; font-size: 11px; font-weight: 600; }
+      button:disabled { opacity: 0.45; cursor: default; }
+      .stats { font-size: 12px; color: #555; margin-top: 10px; }
+      .seed-group { margin-bottom: 14px; }
+      .seed-title {
+        font-size: 13px; font-weight: 800; color: #03c75a; margin: 6px 0;
+        display: flex; align-items: center; gap: 8px;
+      }
+      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; }
+      th { color: #999; font-weight: 600; font-size: 11px; }
+      .lvl { display: inline-block; min-width: 20px; text-align: center;
+        border-radius: 4px; font-size: 10px; padding: 1px 5px; color: #fff; }
+      .lvl0 { background: #868e96; }
+      .lvl1 { background: #4a90e2; }
+      .lvl2 { background: #7b61ff; }
+      .lvl3 { background: #e2725b; }
+      #log { font-size: 11px; color: #888; margin-top: 8px; white-space: pre-wrap; }
+      .empty { color: #aaa; font-size: 13px; padding: 20px 0; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>키워드 확장 도구 <span style="font-size:12px;color:#03c75a;">v1</span></h1>
+      <p class="sub">시드 키워드 → 네이버 자동완성 10개 수집 → 저장 → 확장</p>
+
+      <!-- Gemini 설정 -->
+      <div class="card">
+        <div style="font-weight:800;font-size:13px;margin-bottom:8px;">⚙️ AI(Gemini) 설정</div>
+        <div class="row">
+          <input id="geminiKey" type="password" placeholder="Gemini API 키 (AI Studio에서 발급)" />
+          <input id="geminiModel" type="text" style="max-width:200px;flex:0 0 auto;" placeholder="모델" />
+          <button id="saveSettings">저장</button>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <input id="writeUrl" type="text" placeholder="블로그 글쓰기 주소 (예: https://blog.naver.com/내아이디?Redirect=Write)" />
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-top:6px;">
+          키는 이 브라우저(chrome.storage)에만 저장됩니다. 모델 예: gemini-3.6-flash ·
+          글쓰기 주소를 넣으면 열린 글쓰기 탭이 없을 때 자동으로 백그라운드로 엽니다.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <input id="seed" type="text" placeholder="시드 키워드 (예: 실업급여)" />
+          <button id="collect" class="primary">자동완성 수집</button>
+        </div>
+        <div id="log"></div>
+      </div>
+
+      <!-- 생성 프롬프트 편집 (전용 코드창) -->
+      <div class="card">
+        <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🧩 생성 프롬프트 (prompt.md 에서 불러옴 · 편집 전용 코드창)</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;line-height:1.6;">
+          프롬프트 원본은 확장 폴더의 <code style="background:#eef;padding:1px 4px;border-radius:3px;">prompt.md</code> 파일입니다.
+          파일을 직접 고쳐도 되고, 아래 코드창에서 고쳐 <b>[프롬프트 저장]</b> 하면 그 내용이 우선 적용됩니다.
+          <b>[기본값으로]</b> 를 누르면 prompt.md 를 다시 불러옵니다.<br />
+          이 프롬프트로 Gemini가 글을 만듭니다. 자리표시자
+          <code style="background:#eef;padding:1px 4px;border-radius:3px;">{keyword}</code>,
+          <code style="background:#eef;padding:1px 4px;border-radius:3px;">{imageCount}</code>
+          는 생성 시 자동 치환됩니다.<br />
+          구분선 style 사용 가능:
+          <b>default</b>(기본 실선) · <b>line1</b> · <b>line5</b> · <b>line6</b> · <b>line7</b>
+          &nbsp;예: <code>{ "type": "divider", "style": "line1" }</code>
+        </div>
+        <textarea id="promptTemplate" spellcheck="false"
+          style="width:100%;min-height:320px;font-family:Consolas,'D2Coding',monospace;font-size:12px;line-height:1.55;border:1px solid #2b3947;border-radius:8px;padding:12px;background:#0f1720;color:#d6e2ea;resize:vertical;"></textarea>
+        <div class="row" style="margin-top:8px;">
+          <button id="savePrompt" class="primary">프롬프트 저장</button>
+          <button id="resetPrompt">기본값으로</button>
+          <span id="promptLog" style="font-size:11px;color:#888;"></span>
+        </div>
+      </div>
+
+      <!-- AI 글 생성 테스트 -->
+      <div class="card">
+        <div style="font-weight:800;font-size:13px;margin-bottom:8px;">✍️ AI 글 생성 (테스트)</div>
+        <div class="row">
+          <input id="genKeyword" type="text" placeholder="글로 만들 키워드 (예: 실업급여 신청방법)" />
+          <select id="genImages" style="flex:0 0 auto;padding:9px;border:1px solid #d5d8dc;border-radius:6px;">
+            <option value="0">이미지 없음</option>
+            <option value="2">이미지 자리 2</option>
+            <option value="3">이미지 자리 3</option>
+          </select>
+          <button id="genArticle" class="blue">Gemini 글 생성</button>
+        </div>
+        <div id="genLog" style="font-size:11px;color:#888;margin-top:8px;white-space:pre-wrap;"></div>
+        <div id="autoRow" class="row" style="display:none;margin-top:10px;">
+          <button id="autoWrite" class="primary">🚀 백그라운드 임시저장 (창·타이핑 없음)</button>
+        </div>
+        <div style="font-size:11px;color:#e2725b;margin-top:6px;">
+          ※ <b>네이버 로그인만</b> 돼 있으면 됩니다. 글쓰기 페이지가 없으면 백그라운드로 몰래 열고 저장 후 닫습니다.
+          (해당 탭 <b>F12는 닫아</b> 두세요.)
+        </div>
+        <pre id="genResult" style="display:none;margin-top:10px;max-height:340px;overflow:auto;background:#0f1720;color:#7CFC98;font-size:11px;padding:12px;border-radius:8px;white-space:pre-wrap;"></pre>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content: space-between;">
+          <div class="row" style="gap: 6px;">
+            <button id="expandAll" class="blue">미확장 전부 확장(1단계)</button>
+            <button id="copyJson">전체 JSON 복사</button>
+          </div>
+          <button id="clearAll" class="danger">전체 삭제</button>
+        </div>
+        <div id="stats" class="stats"></div>
+      </div>
+
+      <div id="list"></div>
+    </div>
+
+    <script src="keywords.js"></script>
+  </body>
+</html>

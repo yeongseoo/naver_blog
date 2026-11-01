@@ -1,0 +1,43 @@
+{
+  "name": "naver-blog-autoposter",
+  "productName": "블로그 오토포스터",
+  "version": "1.0.0",
+  "description": "네이버 블로그 예약 자동발행 데스크톱 앱 (Chrome 확장 연동)",
+  "author": "wers2008wers",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "dist": "electron-builder --win",
+    "pack": "electron-builder --dir"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.wers2008wers.naverblogautoposter",
+    "productName": "블로그 오토포스터",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": ["src/**/*", "renderer/**/*", "!**/*.map"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "블로그 오토포스터"
+    }
+  }
+}

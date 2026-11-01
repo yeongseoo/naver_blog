@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>네이버 블로그 자동 입력</title>
+    <style>
+      body {
+        font-family: "Malgun Gothic", -apple-system, sans-serif;
+        width: 320px;
+        margin: 0;
+        padding: 16px;
+        background: #f7f8fa;
+        color: #222;
+      }
+      h1 {
+        font-size: 15px;
+        margin: 0 0 4px;
+      }
+      .sub {
+        font-size: 11px;
+        color: #888;
+        margin: 0 0 12px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 8px 0 4px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d5d8dc;
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 12px;
+        font-family: inherit;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 60px;
+      }
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      button {
+        flex: 1;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 0;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      #run {
+        background: #03c75a;
+        color: #fff;
+      }
+      #diagnose {
+        background: #e9ecef;
+        color: #333;
+      }
+      #status {
+        margin-top: 12px;
+        font-size: 11px;
+        white-space: pre-wrap;
+        background: #fff;
+        border: 1px solid #e5e8eb;
+        border-radius: 6px;
+        padding: 8px;
+        max-height: 180px;
+        overflow: auto;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>네이버 블로그 자동 입력 <span id="build" style="color:#03c75a;font-size:11px;"></span></h1>
+    <p class="sub">Phase 1 · 제목/본문 자동 입력 검증 · 팝업이 닫히면 다시 열어 결과 확인</p>
+
+    <div class="btn-row" style="margin-bottom:12px;">
+      <button id="openKeywords" style="background:#7b61ff;color:#fff;">🔍 키워드 확장 도구 열기</button>
+    </div>
+
+    <label for="title">제목</label>
+    <input id="title" type="text" value="자동화 테스트 글" />
+
+    <label for="body">본문</label>
+    <textarea id="body">
+이 글은 네이버 블로그 자동 입력 기능을 테스트하기 위한 글입니다.</textarea
+    >
+
+    <div class="btn-row">
+      <button id="diagnose">DOM 진단</button>
+      <button id="run">자동 입력</button>
+    </div>
+
+    <label for="imgpath">이미지 파일 경로 (로컬 절대경로)</label>
+    <input id="imgpath" type="text" value="C:\Users\AAA\Desktop\주행연습.jpg" />
+
+    <label for="body2">본문2 (이미지 뒤 문단)</label>
+    <input id="body2" type="text" value="이미지 아래에 들어가는 두 번째 문단입니다." />
+
+    <div class="btn-row">
+      <button id="insertImage" style="background:#4a90e2;color:#fff;">이미지만 삽입</button>
+      <button id="runSequence" style="background:#7b61ff;color:#fff;">순서 삽입(글→그림→글)</button>
+    </div>
+
+    <label for="blocks">Block Engine JSON (Phase 3)</label>
+    <textarea id="blocks" style="min-height:150px;font-family:monospace;font-size:11px;">
+{
+  "title": "블록 엔진 테스트",
+  "blocks": [
+    { "type": "heading", "content": "소제목처럼 쓸 문단" },
+    { "type": "text", "content": "첫 번째 문단입니다." },
+    { "type": "image", "path": "C:\\Users\\AAA\\Desktop\\주행연습.jpg" },
+    { "type": "quote", "content": "이것은 인용구 블록입니다." },
+    { "type": "divider" },
+    { "type": "text", "content": "마지막 문단입니다." }
+  ]
+}</textarea>
+    <div class="btn-row">
+      <button id="runBlocks" style="background:#e2725b;color:#fff;">Block Engine 실행</button>
+      <button id="probeStyles">스타일 진단(소제목/구분선)</button>
+    </div>
+    <div class="btn-row">
+      <button id="saveDraft" style="background:#868e96;color:#fff;">임시저장</button>
+      <button id="publishPost" style="background:#03c75a;color:#fff;">⚠️ 발행하기</button>
+    </div>
+    <div class="btn-row">
+      <button id="probePublish">발행 UI 진단</button>
+    </div>
+    <div class="btn-row">
+      <button id="capturePublish" style="background:#111;color:#fff;">
+        📥 발행요청 캡처(누른 뒤 수동 저장/발행)
+      </button>
+    </div>
+    <div class="btn-row">
+      <button id="apiTempSave" style="background:#0a8f3c;color:#fff;">
+        🚀 API 임시저장 (캡처 재사용)
+      </button>
+    </div>
+    <div class="btn-row">
+      <button id="apiTempSaveAuto" style="background:#05803a;color:#fff;">
+        ⚡ API 임시저장 (캡처 없이·다계정 자동)
+      </button>
+    </div>
+    <div class="btn-row">
+      <button id="bgApiSave" style="background:#1f6f4a;color:#fff;">
+        🌙 백그라운드 저장 (페이지 안 열려 있어도 됨)
+      </button>
+    </div>
+    <div class="btn-row">
+      <button id="probeEditor" style="background:#c026d3;color:#fff;">
+        🔬 에디터 내부 진단 (editorSource/저장메서드 탐색)
+      </button>
+    </div>
+
+    <div id="status">글쓰기 페이지에서 실행하세요.</div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
